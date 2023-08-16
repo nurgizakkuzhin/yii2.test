@@ -3,14 +3,60 @@
 namespace app\models;
 
 use yii\base\Model;
+use yii\web\UploadedFile;
 
 class ImageUpload extends Model
 {
     public $image;
 
-    public function uploadFile($file)
+    public function rules()
     {
-        $file->saveAS(\Yii::getAlias('@web') . 'uploads/' . $file->name);
-        return $file->name;
+        return [
+            [['image'], 'required'],
+            [['image'], 'file', 'extensions' => 'jpg,png'],
+        ];
+    }
+
+    public function uploadFile(UploadedFile $file, $currentImage)
+    {
+        $this->image = $file;
+        if ($this->validate()) {
+
+            if ($currentImage !== null) {
+                $this->deleteCurrentImage($currentImage);
+            }
+
+            return $this->saveImage();
+        }
+    }
+
+    private function getFolder()
+    {
+        return \Yii::getAlias('@webroot') . '/uploads/';
+    }
+
+    private function generateFilename()
+    {
+        return strtolower(md5(uniqid($this->image->baseName)) . '.' . $this->image->extension);
+    }
+
+    public function deleteCurrentImage($currentImage)
+    {
+        if ($this->fileExists($currentImage)) {
+            unlink($this->getFolder() . $currentImage);
+        }
+    }
+
+    public function fileExists($currentImage)
+    {
+        return file_exists($this->getFolder() . $currentImage);
+    }
+
+    public function saveImage()
+    {
+        $filename = $this->generateFilename();
+        $this->image->saveAs($this->getFolder() . $filename);
+
+        return $filename;
     }
 }

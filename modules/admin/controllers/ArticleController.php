@@ -124,11 +124,15 @@ class ArticleController extends Controller
 
         if (\Yii::$app->request->isPost) {
             $article = $this->findModel($id);
+            $currentImage = $article->image;
+
             $file = UploadedFile::getInstance($model, 'image');
 
-            $article->saveImage($model->uploadFile($file));
+            if ($article->saveImage($model->uploadFile($file, $currentImage))) {
+                 return $this->redirect(['view', 'id' => $article->id]);
+            }
         }
-        return $this->render('image', ['model' => $model]);
+        return $this->render('set-image', ['model' => $model]);
     }
 
     /**
