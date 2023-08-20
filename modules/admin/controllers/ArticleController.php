@@ -4,8 +4,10 @@ namespace app\modules\admin\controllers;
 
 use app\models\Article;
 use app\models\ArticleSearch;
+use app\models\ArticleTag;
 use app\models\Category;
 use app\models\ImageUpload;
+use app\models\Tag;
 use yii\helpers\ArrayHelper;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -166,5 +168,42 @@ class ArticleController extends Controller
             }
         }
         return $this->render('set-category', ['article' => $article, 'selectedCategory' => $selectedCategory, 'categories' => $categories]);
+    }
+
+    public function actionSetTags($id)
+    {
+        $article = $this->findModel($id);
+        $selectedTags = $article->getSelectedTags();
+        $tags = ArrayHelper::map(Tag::find()->all(), 'id', 'title');
+
+        if (\Yii::$app->request->isPost) {
+            $tags = \Yii::$app->request->post('tags');
+
+        }
+
+        return $this->render('set-tags', ['article' => $article]);
+    }
+
+    public function getSelectedTags()
+    {
+        $selectedIds = $this->getTags()->selec('id')->asArray()->all();
+        return ArrayHelper::getColumn($selectedIds, 'id');
+    }
+
+    public function saveTags($tags)
+    {
+        if (is_array($tags)) {
+
+            $this->clearCurrentTags();
+            foreach ($tags as $tag_id) {
+                $tag = Tag::findOne($tag_id);
+                $this->link('tags', $tag);
+            }
+        }
+    }
+
+    public function clearCurrentTags()
+    {
+        ArticleTag::deleteAll(['article_id' => $this->id]);
     }
 }
