@@ -127,4 +127,14 @@ class SiteController extends Controller
     {
         return $this->render('about');
     }
+
+    public function actionSingle()
+    {
+        return $this->render('single');
+    }
+
+    public function actionCategory()
+    {
+        return $this->render('category');
+    }
 }
