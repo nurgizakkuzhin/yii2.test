@@ -58,6 +58,7 @@ $this->params['breadcrumbs'][] = $this->title;
             </div>
         </div>
         <div class="col-md-2">
+
             <script
                     type="text/javascript"
                     src="https://vk.com/js/api/openapi.js?168"
